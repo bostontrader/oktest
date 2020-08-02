@@ -35,18 +35,23 @@ APIKEY="$(curl -X POST $BW_SERVER_URL/apikeys | jq -r .apikey)"
 CURRENCY_BTC="$(curl -d "apikey=$APIKEY&rarity=0&symbol=BTC&title=Bitcoin" $BW_SERVER_URL/currencies | jq .LastInsertId)"
 CURRENCY_LTC="$(curl -d "apikey=$APIKEY&rarity=0&symbol=LTC&title=Litecoin" $BW_SERVER_URL/currencies | jq .LastInsertId)"
 
+# 1.3 The OKCatbox will need hot wallets for the supported currencies.
 HOT_WALLET_BTC="$(curl -d "apikey=$APIKEY&rarity=0&currency_id=$CURRENCY_BTC&title=Hot wallet" $BW_SERVER_URL/accounts | jq .LastInsertId)"
 HOT_WALLET_LTC="$(curl -d "apikey=$APIKEY&rarity=0&currency_id=$CURRENCY_LTC&title=Hot wallet" $BW_SERVER_URL/accounts | jq .LastInsertId)"
 
+# 1.4 The OKCatbox will need these customary categories in order to produce balance sheets and income statements.
 CAT_ASSETS="$(curl -d "apikey=$APIKEY&symbol=A&title=Assets" $BW_SERVER_URL/categories | jq .LastInsertId)"
 CAT_LIABILITIES="$(curl -d "apikey=$APIKEY&symbol=L&title=Liabilities" $BW_SERVER_URL/categories | jq .LastInsertId)"
 CAT_EQUITY="$(curl -d "apikey=$APIKEY&symbol=Eq&title=Equity" $BW_SERVER_URL/categories | jq .LastInsertId)"
 CAT_REVENUE="$(curl -d "apikey=$APIKEY&symbol=R&title=Revenue" $BW_SERVER_URL/categories | jq .LastInsertId)"
 CAT_EXPENSES="$(curl -d "apikey=$APIKEY&symbol=Ex&title=Expenses" $BW_SERVER_URL/categories | jq .LastInsertId)"
 
-CAT_FUNDING="$(curl -d "apikey=$APIKEY&symbol=F&title=Funding" $BW_SERVER_URL/categories | jq .LastInsertId)"
+# 1.4.1 It will also need to tag customer accounts for funding, spot available, and spot hold. Said accounts will be created by the OKCatbox later, when required.  But we want the categories defined now.
+FUNDING_CAT="$(curl -d "apikey=$APIKEY&symbol=F&title=Funding" $BW_SERVER_URL/categories | jq .LastInsertId)"
+SPOT_AVAILABLE_CAT="$(curl -d "apikey=$APIKEY&symbol=SA&title=Spot available" $BW_SERVER_URL/categories | jq .LastInsertId)"
+SPOT_HOLD_CAT="$(curl -d "apikey=$APIKEY&symbol=SH&title=Spot hold" $BW_SERVER_URL/categories | jq .LastInsertId)"
 
-# 1.5 Any hot wallet accounts shall be tagged with this category...
+# 1.4.1 Any hot wallet accounts shall be tagged with this category...
 CAT_HOT="$(curl -d "apikey=$APIKEY&symbol=H&title=Hot wallet" $BW_SERVER_URL/categories | jq .LastInsertId)"
 
 # ... thus
@@ -59,8 +64,10 @@ curl -d "apikey=$APIKEY&account_id=$HOT_WALLET_LTC&category_id=$CAT_HOT" $BW_SER
 echo "bookwerx:" > okcatbox.yaml
 echo "  apikey: $APIKEY" >> okcatbox.yaml
 echo "  server: $BW_SERVER_URL" >> okcatbox.yaml
-echo "  funding_cat: $CAT_FUNDING" >> okcatbox.yaml
-echo "  hot_wallet_cat: $CAT_HOT" >> okcatbox.yaml
+echo "  funding_cat: $FUNDING_CAT" >> okcatbox.yaml
+echo "  spot_available_cat: $FUNDING_CAT" >> okcatbox.yaml
+echo "  spot_hold_cat: $SPOT_AVAILABLE_CAT" >> okcatbox.yaml
+echo "  hot_wallet_cat: $SPOT_HOLD_CAT" >> okcatbox.yaml
 echo "listenaddr: :8090" >> okcatbox.yaml
 cat okcatbox.yaml
 
