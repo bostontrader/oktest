@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# By default we want to get and install these three packages.
 go get github.com/bostontrader/okcatbox
 go get github.com/bostontrader/okconnect
 go get github.com/bostontrader/okprobe
@@ -53,7 +52,7 @@ CAT_FUNDING="$(curl -d "apikey=$APIKEY&symbol=F&title=Funding" $BW_SERVER_URL/ca
 CAT_SPOT_AVAILABLE="$(curl -d "apikey=$APIKEY&symbol=SA&title=Spot available" $BW_SERVER_URL/categories | jq .LastInsertId)"
 CAT_SPOT_HOLD="$(curl -d "apikey=$APIKEY&symbol=SH&title=Spot hold" $BW_SERVER_URL/categories | jq .LastInsertId)"
 
-# 1.4.1 Any hot wallet accounts shall be tagged with this category...
+# 1.4.2 Any hot wallet accounts shall be tagged with this category...
 CAT_HOT_WALLET="$(curl -d "apikey=$APIKEY&symbol=H&title=Hot wallet" $BW_SERVER_URL/categories | jq .LastInsertId)"
 
 # ... thus
@@ -62,7 +61,7 @@ curl -d "apikey=$APIKEY&account_id=$HOT_WALLET_LTC&category_id=$CAT_ASSETS" $BW_
 curl -d "apikey=$APIKEY&account_id=$HOT_WALLET_BTC&category_id=$CAT_HOT_WALLET" $BW_SERVER_URL/acctcats
 curl -d "apikey=$APIKEY&account_id=$HOT_WALLET_LTC&category_id=$CAT_HOT_WALLET" $BW_SERVER_URL/acctcats
 
-# 1.6 Build a config file for okcatbox
+# 1.5 Build a config file for okcatbox
 echo "bookwerx:" > okcatbox.yaml
 echo "  apikey: $APIKEY" >> okcatbox.yaml
 echo "  server: $BW_SERVER_URL" >> okcatbox.yaml
@@ -73,7 +72,7 @@ echo "  hot_wallet_cat: $CAT_HOT_WALLET" >> okcatbox.yaml
 echo "listenaddr: :8090" >> okcatbox.yaml
 cat okcatbox.yaml
 
-# 1.7 Start the catbox daemonized
+# 1.6 Start the catbox daemonized
 okcatbox -config=okcatbox.yaml &
 
 # 2. Now setup the test monkey user.
@@ -144,12 +143,12 @@ curl -d "apikey=$APIKEY&account_id=$ACCT_SPOT_AVAIL_LTC&category_id=$CAT_SPOT_AV
 curl -d "apikey=$APIKEY&account_id=$ACCT_SPOT_HOLD_BTC&category_id=$CAT_SPOT_HOLD" $BW_SERVER_URL/acctcats
 #curl -d "apikey=$APIKEY&account_id=$ACCT_SPOT_HOLD_LTC&category_id=$CAT_SPOT_HOLD" $BW_SERVER_URL/acctcats
 
-# 2.6 Get credentials from the OKCatbox for this user.  As with the real OKEx API we'll need access credentials.  This OKCatbox endpoint is a convenience to make it easy to get credentials.  The real OKEx server doesn't issue credentials via the API.
+echo "2.6 Get credentials from the OKCatbox for this user.  As with the real OKEx API we'll need access credentials.  This OKCatbox endpoint is a convenience to make it easy to get credentials.  The real OKEx server doesn't issue credentials via the API."
 OKCATBOX_CREDENTIALS_FILE=okcatbox.json
 curl -X POST $CATBOX_URL/catbox/credentials --output $OKCATBOX_CREDENTIALS_FILE
 curl -X POST http://localhost:8090/catbox/credentials --output okcatbox.json
 
-# 3. Setup okconnect.
+echo "3. Setup okconnect."
 echo "bookwerxconfig:" > okconnect.yaml
 echo "  apikey: $APIKEY" >> okconnect.yaml
 echo "  server: $BW_SERVER_URL" >> okconnect.yaml
@@ -189,3 +188,7 @@ curl -d "&account_id=$ACCT_LCL_WALLET_BTC&apikey=$APIKEY&amount=-15&amount_exp=-
 # 4.2.4. Let's use okconnect again to compare the user's balances in Bookwerx with the corresponding balances in the OKCatbox. Now there should be zero discrepancies.
 okconnect compare -config okconnect.yaml > okconnect.out
 if [ $(jq -r .[0] okconnect.out) != "null" ]; then echo "okconnect error"; exit 1; fi
+
+# 5. Things are going to start happening now!  The next step is to transfer some BTC from the funding account into the spot market.  This is something that okconnect can easily do.
+
+okconnect transfer -currency BTC -quan 1.25 -from funding -to spot -config okconnect.yaml
