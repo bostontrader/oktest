@@ -4,4 +4,6 @@ go:
   - 1.14.x
 
 script:
+  - go get github.com/bostontrader/okconnect
   - go run main.go
+  - okconnect
