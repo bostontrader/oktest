@@ -1,4 +1,4 @@
-#!/bin/bash -x
+set -x
 
 go get github.com/bostontrader/okcatbox
 go get github.com/bostontrader/okconnect
