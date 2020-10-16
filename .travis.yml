@@ -4,4 +4,4 @@ go:
   - 1.14.x
 
 script:
-  - ./test-script.sh
+  - go run main.go
