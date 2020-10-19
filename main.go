@@ -266,9 +266,9 @@ func main() {
 		BookwerxConfig: config.BookwerxConfig{
 			APIKey:           TMU_APIKEY,
 			Server:           BwServerUrl,
-			FundingCat:       int32(CAT_FUNDING),
-			SpotAvailableCat: int32(CAT_SPOT_AVAILABLE),
-			SpotHoldCat:      int32(CAT_SPOT_AVAILABLE),
+			FundingCat:       CAT_FUNDING,
+			SpotAvailableCat: CAT_SPOT_AVAILABLE,
+			SpotHoldCat:      CAT_SPOT_AVAILABLE,
 		},
 		OKExConfig: config.OKExConfig{
 			Credentials: OKCATBOX_CREDENTIALS_FILE_READ,
