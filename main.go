@@ -41,59 +41,59 @@ func main() {
 	CatboxURL := "http://localhost:8090"
 
 	timeout := 30000 * time.Millisecond
-	client := httpclient.NewClient(httpclient.WithHTTPTimeout(timeout))
+	httpClient := httpclient.NewClient(httpclient.WithHTTPTimeout(timeout))
 
 	// 2. Install, configure, and execute the OKCatbox
 
 	// 2.1 Using the demo Bookwerx server, get credentials for the OKCatbox and setup some demo data.  Recall that this is the bookkeeping configuration that the OKCatbox uses for its own personal consumption.
-	BW_CB_APIKEY := POST_BW_Credentials(client, BwServerUrl)
-	fmt.Printf("BW_CB_APIKEY=%s\n", BW_CB_APIKEY)
+	BookwerxCBAPIKey := POST_BW_Credentials(httpClient, BwServerUrl)
+	fmt.Printf("BookwerxCBAPIKey=%s\n", BookwerxCBAPIKey)
 
 	// 2.2 The OKCatbox will support these currencies...
-	CurrencyBTC := POST_BW_LID(client, fmt.Sprintf("%s/currencies", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&symbol=BTC&title=Bitcoin", BW_CB_APIKEY))
+	CurrencyBTC := POST_BW_LID(httpClient, fmt.Sprintf("%s/currencies", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&symbol=BTC&title=Bitcoin", BookwerxCBAPIKey))
 
-	CurrencyLTC := POST_BW_LID(client, fmt.Sprintf("%s/currencies", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&symbol=LTC&title=Litecoin", BW_CB_APIKEY))
+	CurrencyLTC := POST_BW_LID(httpClient, fmt.Sprintf("%s/currencies", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&symbol=LTC&title=Litecoin", BookwerxCBAPIKey))
 
 	// 2.3 The OKCatbox will need a hot wallet asset account for each of the supported currencies.
-	HotWalletBTC := POST_BW_LID(client, fmt.Sprintf("%s/accounts", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&currency_id=%d&title=Hot wallet", BW_CB_APIKEY, CurrencyBTC))
+	HotWalletBTC := POST_BW_LID(httpClient, fmt.Sprintf("%s/accounts", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&currency_id=%d&title=Hot wallet", BookwerxCBAPIKey, CurrencyBTC))
 
-	HotWalletLTC := POST_BW_LID(client, fmt.Sprintf("%s/accounts", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&currency_id=%d&title=Hot wallet", BW_CB_APIKEY, CurrencyLTC))
+	HotWalletLTC := POST_BW_LID(httpClient, fmt.Sprintf("%s/accounts", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&currency_id=%d&title=Hot wallet", BookwerxCBAPIKey, CurrencyLTC))
 
 	// 2.4 The OKCatbox will need these customary categories in order to produce balance sheets and income statements.
-	//CAT_ASSETS := POST_BW_LID(client, fmt.Sprintf(
-	//"%s/categories", BwServerUrl), fmt.Sprintf("apikey=%s&symbol=A&title=Assets", BW_CB_APIKEY))
+	//CAT_ASSETS := POST_BW_LID(httpClient, fmt.Sprintf(
+	//"%s/categories", BwServerUrl), fmt.Sprintf("apikey=%s&symbol=A&title=Assets", BookwerxCBAPIKey))
 
-	//CAT_LIABILITIES="$(curl -s -d "apikey=$BW_CB_APIKEY&symbol=L&title=Liabilities" $BwServerUrl/categories | jq .LastInsertId)"
-	//CAT_EQUITY="$(curl -s -d "apikey=$BW_CB_APIKEY&symbol=Eq&title=Equity" $BwServerUrl/categories | jq .LastInsertId)"
-	//CAT_REVENUE="$(curl -s -d "apikey=$BW_CB_APIKEY&symbol=R&title=Revenue" $BwServerUrl/categories | jq .LastInsertId)"
-	//CAT_EXPENSES="$(curl -s -d "apikey=$BW_CB_APIKEY&symbol=Ex&title=Expenses" $BwServerUrl/categories | jq .LastInsertId)"
+	//CAT_LIABILITIES="$(curl -s -d "apikey=$BookwerxCBAPIKey&symbol=L&title=Liabilities" $BwServerUrl/categories | jq .LastInsertId)"
+	//CAT_EQUITY="$(curl -s -d "apikey=$BookwerxCBAPIKey&symbol=Eq&title=Equity" $BwServerUrl/categories | jq .LastInsertId)"
+	//CAT_REVENUE="$(curl -s -d "apikey=$BookwerxCBAPIKey&symbol=R&title=Revenue" $BwServerUrl/categories | jq .LastInsertId)"
+	//CAT_EXPENSES="$(curl -s -d "apikey=$BookwerxCBAPIKey&symbol=Ex&title=Expenses" $BwServerUrl/categories | jq .LastInsertId)"
 
 	// 2.4.1 The OKCatbox will also need to tag customer accounts for funding, spot available, and spot hold. Said accounts will be created by the OKCatbox later, when required.  But we want the categories defined now.
-	CAT_FUNDING := POST_BW_LID(client, fmt.Sprintf(
-		"%s/categories", BwServerUrl), fmt.Sprintf("apikey=%s&symbol=F&title=Funding", BW_CB_APIKEY))
+	CAT_FUNDING := POST_BW_LID(httpClient, fmt.Sprintf(
+		"%s/categories", BwServerUrl), fmt.Sprintf("apikey=%s&symbol=F&title=Funding", BookwerxCBAPIKey))
 
-	CAT_SPOT_AVAILABLE := POST_BW_LID(client, fmt.Sprintf(
-		"%s/categories", BwServerUrl), fmt.Sprintf("apikey=%s&symbol=SA&title=Spot available", BW_CB_APIKEY))
+	CAT_SPOT_AVAILABLE := POST_BW_LID(httpClient, fmt.Sprintf(
+		"%s/categories", BwServerUrl), fmt.Sprintf("apikey=%s&symbol=SA&title=Spot available", BookwerxCBAPIKey))
 
-	CAT_SPOT_HOLD := POST_BW_LID(client, fmt.Sprintf(
-		"%s/categories", BwServerUrl), fmt.Sprintf("apikey=%s&symbol=SH&title=Spot hold", BW_CB_APIKEY))
+	CAT_SPOT_HOLD := POST_BW_LID(httpClient, fmt.Sprintf(
+		"%s/categories", BwServerUrl), fmt.Sprintf("apikey=%s&symbol=SH&title=Spot hold", BookwerxCBAPIKey))
 
 	// 2.4.2 Any hot wallet accounts shall be tagged with this category..."
-	CAT_HOT_WALLET := POST_BW_LID(client, fmt.Sprintf(
-		"%s/categories", BwServerUrl), fmt.Sprintf("apikey=%s&symbol=H&title=Hot wallet", BW_CB_APIKEY))
+	CAT_HOT_WALLET := POST_BW_LID(httpClient, fmt.Sprintf(
+		"%s/categories", BwServerUrl), fmt.Sprintf("apikey=%s&symbol=H&title=Hot wallet", BookwerxCBAPIKey))
 
 	// Tag each hot wallet account as an Asset and a Hot Wallet.  We don't care about the return value.
-	//_ = POST_BW_LID(client, fmt.Sprintf(
-	//"%s/acctcats", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&category_id=%d", BW_CB_APIKEY, HotWalletBTC, CAT_ASSETS))
+	//_ = POST_BW_LID(httpClient, fmt.Sprintf(
+	//"%s/acctcats", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&category_id=%d", BookwerxCBAPIKey, HotWalletBTC, CAT_ASSETS))
 
-	//_ = POST_BW_LID(client, fmt.Sprintf(
-	//"%s/acctcats", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&category_id=%d", BW_CB_APIKEY, HotWalletLTC, CAT_ASSETS))
+	//_ = POST_BW_LID(httpClient, fmt.Sprintf(
+	//"%s/acctcats", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&category_id=%d", BookwerxCBAPIKey, HotWalletLTC, CAT_ASSETS))
 
-	_ = POST_BW_LID(client, fmt.Sprintf(
-		"%s/acctcats", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&category_id=%d", BW_CB_APIKEY, HotWalletBTC, CAT_HOT_WALLET))
+	_ = POST_BW_LID(httpClient, fmt.Sprintf(
+		"%s/acctcats", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&category_id=%d", BookwerxCBAPIKey, HotWalletBTC, CAT_HOT_WALLET))
 
-	_ = POST_BW_LID(client, fmt.Sprintf(
-		"%s/acctcats", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&category_id=%d", BW_CB_APIKEY, HotWalletLTC, CAT_HOT_WALLET))
+	_ = POST_BW_LID(httpClient, fmt.Sprintf(
+		"%s/acctcats", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&category_id=%d", BookwerxCBAPIKey, HotWalletLTC, CAT_HOT_WALLET))
 
 	// 2.5 Build a config file for okcatbox.  You can see that some of the categories are duplicated.  Fix this.
 	m := make(map[string]AH)
@@ -108,7 +108,7 @@ func main() {
 
 	catboxConfig := Config{
 		Bookwerx: Bookwerx{
-			APIKey:           BW_CB_APIKEY,
+			APIKey:           BookwerxCBAPIKey,
 			Server:           BwServerUrl,
 			FundingCat:       CAT_FUNDING,
 			SpotAvailableCat: CAT_SPOT_AVAILABLE,
@@ -144,27 +144,27 @@ func main() {
 
 	// 3.1 In the beginning... The user has nothing.  He must first establish his own account with the Bookwerx Core server.
 	//TMU_APIKEY="$(curl -s -X POST $BwServerUrl/apikeys | jq -r .apikey)"
-	TMU_APIKEY := POST_BW_Credentials(client, BwServerUrl)
+	TMU_APIKEY := POST_BW_Credentials(httpClient, BwServerUrl)
 	fmt.Printf("TMU_APIKEY=%s\n", TMU_APIKEY)
 
 	// 3.2 Since we are going to use BTC and LTC in our subsequent transactions, we must define them as currencies in Bookwerx. We have already done this for the OKCatbox books, but we are using the same currencies for the user's books and we must define them separately there."
-	CurrencyBTC = POST_BW_LID(client, fmt.Sprintf("%s/currencies", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&symbol=BTC&title=Bitcoin", TMU_APIKEY))
+	CurrencyBTC = POST_BW_LID(httpClient, fmt.Sprintf("%s/currencies", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&symbol=BTC&title=Bitcoin", TMU_APIKEY))
 
 	//CurrencyLTC="$(curl -s -d "apikey=$TMU_APIKEY&rarity=0&symbol=LTC&title=Litecoin" $BwServerUrl/currencies | jq .LastInsertId)"
-	//CurrencyLTC := POST_BW_LID(client, fmt.Sprintf("%s/currencies", TMU_APIKEY), fmt.Sprintf("apikey=%s&rarity=0&symbol=LTC&title=Litecoin", TMU_APIKEY))
+	//CurrencyLTC := POST_BW_LID(httpClient, fmt.Sprintf("%s/currencies", TMU_APIKEY), fmt.Sprintf("apikey=%s&rarity=0&symbol=LTC&title=Litecoin", TMU_APIKEY))
 
 	// 3.3 Establish some necessary bookkeeping accounts for the user.  Notice that several of the accounts have identical titles.  They are differentiated according to their currencies.
 
 	// 3.3.1 We must have owner's equity to get the party started.
-	ACCT_EQUITY := POST_BW_LID(client, fmt.Sprintf("%s/accounts", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&currency_id=%d&title=Owner's equity", TMU_APIKEY, CurrencyBTC))
+	ACCT_EQUITY := POST_BW_LID(httpClient, fmt.Sprintf("%s/accounts", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&currency_id=%d&title=Owner's equity", TMU_APIKEY, CurrencyBTC))
 
 	// 3.3.2 We must have asset accounts for our local wallets.
-	ACCT_LCL_WALLET_BTC := POST_BW_LID(client, fmt.Sprintf("%s/accounts", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&currency_id=%d&title=Local wallet", TMU_APIKEY, CurrencyBTC))
+	ACCT_LCL_WALLET_BTC := POST_BW_LID(httpClient, fmt.Sprintf("%s/accounts", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&currency_id=%d&title=Local wallet", TMU_APIKEY, CurrencyBTC))
 
 	//ACCT_LCL_WALLET_LTC="$(curl -s -d "apikey=$TMU_APIKEY&rarity=0&currency_id=$CurrencyLTC&title=Local Wallet" $BwServerUrl/accounts | jq .LastInsertId)"
 
 	// 3.3.3 We must have asset accounts for our funding accounts on OKEx
-	ACCT_FUNDING_BTC := POST_BW_LID(client, fmt.Sprintf("%s/accounts", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&currency_id=%d&title=OKEx Funding", TMU_APIKEY, CurrencyBTC))
+	ACCT_FUNDING_BTC := POST_BW_LID(httpClient, fmt.Sprintf("%s/accounts", BwServerUrl), fmt.Sprintf("apikey=%s&rarity=0&currency_id=%d&title=OKEx Funding", TMU_APIKEY, CurrencyBTC))
 	//ACCT_FUNDING_LTC="$(curl -s -d "apikey=$TMU_APIKEY&rarity=0&currency_id=$CurrencyLTC&title=OKEx Funding" $BwServerUrl/accounts | jq .LastInsertId)"
 
 	// 3.3.4 We must have asset accounts for our balances in the spot trading area of OKEx.  Not merely one, but two balances, available and amounts on hold.
@@ -187,13 +187,13 @@ func main() {
 	//CAT_EXPENSES="$(curl -s -d "apikey=$TMU_APIKEY&symbol=Ex&title=Expenses" $BwServerUrl/categories | jq .LastInsertId)"
 
 	// 3.4.2 We will need a general ability to find all funding, spot-available, and spot-hold accounts so we need these categories.
-	CAT_FUNDING = POST_BW_LID(client, fmt.Sprintf(
+	CAT_FUNDING = POST_BW_LID(httpClient, fmt.Sprintf(
 		"%s/categories", BwServerUrl), fmt.Sprintf("apikey=%s&symbol=F&title=Funding", TMU_APIKEY))
 
-	CAT_SPOT_AVAILABLE = POST_BW_LID(client, fmt.Sprintf(
+	CAT_SPOT_AVAILABLE = POST_BW_LID(httpClient, fmt.Sprintf(
 		"%s/categories", BwServerUrl), fmt.Sprintf("apikey=%s&symbol=SA&title=Spot available", TMU_APIKEY))
 
-	CAT_SPOT_HOLD = POST_BW_LID(client, fmt.Sprintf(
+	CAT_SPOT_HOLD = POST_BW_LID(httpClient, fmt.Sprintf(
 		"%s/categories", BwServerUrl), fmt.Sprintf("apikey=%s&symbol=SH&title=Spot hold", TMU_APIKEY))
 
 	// 3.5 Now tag these accounts with suitable categories.  Just do it, we don't care about saving any return values.
@@ -211,7 +211,7 @@ func main() {
 	//curl -s -d "apikey=$TMU_APIKEY&account_id=$ACCT_EQUITY&category_id=$CAT_EQUITY" $BwServerUrl/acctcats
 
 	//curl -s -d "apikey=$TMU_APIKEY&account_id=$ACCT_FUNDING_BTC&category_id=$CAT_FUNDING" $BwServerUrl/acctcats
-	_ = POST_BW_LID(client, fmt.Sprintf(
+	_ = POST_BW_LID(httpClient, fmt.Sprintf(
 		"%s/acctcats", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&category_id=%d", TMU_APIKEY, ACCT_FUNDING_BTC, CAT_FUNDING))
 	//curl -s -d "apikey=$TMU_APIKEY&account_id=$ACCT_FUNDING_LTC&category_id=$CAT_FUNDING" $BwServerUrl/acctcats
 	//curl -s -d "apikey=$TMU_APIKEY&account_id=$ACCT_SPOT_AVAIL_BTC&category_id=$CAT_SPOT_AVAILABLE" $BwServerUrl/acctcats
@@ -219,31 +219,20 @@ func main() {
 	//curl -s -d "apikey=$TMU_APIKEY&account_id=$ACCT_SPOT_HOLD_BTC&category_id=$CAT_SPOT_HOLD" $BwServerUrl/acctcats
 	//curl -s -d "apikey=$TMU_APIKEY&account_id=$ACCT_SPOT_HOLD_LTC&category_id=$CAT_SPOT_HOLD" $BwServerUrl/acctcats
 
-	// 3.6 Get read and read-trade credentials from the OKCatbox for this user.  As with the real OKEx API we'll need access credentials.  This OKCatbox endpoint is a convenience to make it easy to get credentials.  The real OKEx server doesn't issue credentials via the API.
+	// 3.6 Get read, read-trade, and read-withdraw credentials from the OKCatbox for this user.  As with the real OKEx API we'll need access credentials.  This OKCatbox endpoint is a convenience to make it easy to get credentials.  The real OKEx server doesn't issue credentials via the API.
 	USER_ID := "moe"
 
+	// 3.6.1 read
 	OKCATBOX_CREDENTIALS_FILE_READ := "okcatbox-read.json"
-	//curl -s -X POST $CatboxURL/catbox/credentials --data "{\"user_id\":\"$USER_ID\",\"type\":\"read\"}" --output $OKCATBOX_CREDENTIALS_FILE_READ
-	//c := POST_Catbox_Credentials(client, CatboxURL)
-	credentialsRequestBody := CredentialsRequestBody{
-		UserID: USER_ID,
-		Type:   "read",
-	}
-	cbc := POST_Catbox_Credentials(client, CatboxURL, credentialsRequestBody)
-	fmt.Printf("catbox credentials=%v\n", cbc)
+	cb_credentials_read := buildOKCatboxCredentials(httpClient, CatboxURL, CredentialsRequestBody{UserID: USER_ID, Type: "read"}, OKCATBOX_CREDENTIALS_FILE_READ)
 
-	// Now write these credentials to a file.
-	out, err = json.Marshal(cbc)
-	if err != nil {
-		fmt.Printf("JSON Encode error: Obj=%v, err=%v\n", credentialsRequestBody, err)
-		os.Exit(1)
-	}
-	err = ioutil.WriteFile(OKCATBOX_CREDENTIALS_FILE_READ, out, 0600)
-	if err != nil {
-		fmt.Printf("Error writing okcatbox credentials to %s: err=%v\n", OKCATBOX_CREDENTIALS_FILE_READ, err)
-		os.Exit(1)
-	}
-	fmt.Printf("OKCatbox config=\n%#v\n", catboxConfig)
+	// 3.6.2 read-trade
+	//OKCATBOX_CREDENTIALS_FILE_READ_TRADE := "okcatbox-read-trade.json"
+	//cb_credentials_read := buildOKCatboxCredentials(httpClient, CatboxURL, CredentialsRequestBody{UserID: USER_ID, Type: "read"}, OKCATBOX_CREDENTIALS_FILE_READ)
+
+	// 3.6.3 read-withdrawal
+	//OKCATBOX_CREDENTIALS_FILE_READ_WITHDRAW := "okcatbox-read-withdraw.json"
+	//cb_credentials_read := buildOKCatboxCredentials(httpClient, CatboxURL, CredentialsRequestBody{UserID: USER_ID, Type: "read"}, OKCATBOX_CREDENTIALS_FILE_READ)
 
 	// parse this into json so we can access it later
 
@@ -291,17 +280,17 @@ func main() {
 	fmt.Printf("okconnect config=\n%s\n\n", string(okconnectConfigS))
 
 	// 5. Initial equity for the TMU
-	TXID := POST_BW_LID(client, fmt.Sprintf(
+	TXID := POST_BW_LID(httpClient, fmt.Sprintf(
 		"%s/transactions", BwServerUrl), fmt.Sprintf("apikey=%s&notes=Initial Equity&time=2020-05-01T12:34:55.000Z", TMU_APIKEY))
-	_ = POST_BW_LID(client, fmt.Sprintf(
+	_ = POST_BW_LID(httpClient, fmt.Sprintf(
 		"%s/distributions", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&amount=2&amount_exp=0&transaction_id=%d", TMU_APIKEY, ACCT_LCL_WALLET_BTC, TXID))
-	_ = POST_BW_LID(client, fmt.Sprintf(
+	_ = POST_BW_LID(httpClient, fmt.Sprintf(
 		"%s/distributions", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&amount=-2&amount_exp=0&transaction_id=%d", TMU_APIKEY, ACCT_EQUITY, TXID))
 
 	// 6. Simulate the deposit of BTC into the funding account.  This is a tedious and difficult issue for a variety of reasons.  Therefore, at this point, we will use this convenience endpoint from the OKCatbox where we can easily assert a deposit. This OKCatbox endpoint is a convenience to make it easy to make deposits.  The real OKEx server doesn't manage deposits via the API.
 
-	// 6.1 Make the deposit manually to the catbox
-	_ = POST_Catbox_Deposit(client, CatboxURL, fmt.Sprintf("&apikey=%s&currency_symbol=BTC&quan=1.5", cbc.Key))
+	// 6.1 Make the deposit manually to the catbox. We use the cb_credentials_read merely to identify the user.
+	_ = POST_Catbox_Deposit(httpClient, CatboxURL, fmt.Sprintf("&apikey=%s&currency_symbol=BTC&quan=1.5", cb_credentials_read.Key))
 
 	// 6.2 Let's use okconnect to compare the user's balances in Bookwerx with the corresponding balances in the OKCatbox.  We should detect a discrepancy because the OKCatbox has a deposit,  but we haven't yet made a matching transaction on the user's books.
 	out1, err := exec.Command("okconnect", "compare", "-config", "okconnect.yaml").Output()
@@ -334,11 +323,11 @@ func main() {
 	//if [ $(jq -r .[0].BookwerxBalance.Nil okconnect.out) != "true" ]; then echo "okconnect error"; exit 1; fi
 
 	// 6.3 Now create the bookwerx transaction on our user's books.
-	TXID = POST_BW_LID(client, fmt.Sprintf(
+	TXID = POST_BW_LID(httpClient, fmt.Sprintf(
 		"%s/transactions", BwServerUrl), fmt.Sprintf("apikey=%s&notes=Xfer BTC to OKEx&time=2020-05-01T12:34:55.000Z", TMU_APIKEY))
-	_ = POST_BW_LID(client, fmt.Sprintf(
+	_ = POST_BW_LID(httpClient, fmt.Sprintf(
 		"%s/distributions", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&amount=15&amount_exp=-1&transaction_id=%d", TMU_APIKEY, ACCT_FUNDING_BTC, TXID))
-	_ = POST_BW_LID(client, fmt.Sprintf(
+	_ = POST_BW_LID(httpClient, fmt.Sprintf(
 		"%s/distributions", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&amount=-15&amount_exp=-1&transaction_id=%d", TMU_APIKEY, ACCT_LCL_WALLET_BTC, TXID))
 
 	// 6.4 Let's use okconnect again to compare the user's balances in Bookwerx with the corresponding balances in the OKCatbox. Now there should be zero discrepancies.
@@ -446,27 +435,27 @@ type User struct {
 	UserID string
 }
 
-func POST_BW_Credentials(client *httpclient.Client, baseURL string) string {
+func POST_BW_Credentials(httpClient *httpclient.Client, baseURL string) string {
 
 	url := fmt.Sprintf("%s/apikeys", baseURL)
-	response_body := POST(client, url, nil, nil)
+	response_body := POST(httpClient, url, nil, nil)
 
 	type BW_APIKEY struct {
 		APIKEY string `json:"apikey"`
 	}
 
-	var BW_CB_APIKEY BW_APIKEY
+	var BookwerxCBAPIKey BW_APIKEY
 	dec := json.NewDecoder(bytes.NewReader(response_body))
-	err := dec.Decode(&BW_CB_APIKEY)
+	err := dec.Decode(&BookwerxCBAPIKey)
 	if err != nil {
 		fmt.Printf("JSON Decode error: Body=%s, err=%v\n", string(response_body), err)
 		os.Exit(1)
 	}
 
-	return BW_CB_APIKEY.APIKEY
+	return BookwerxCBAPIKey.APIKEY
 }
 
-func POST_Catbox_Credentials(client *httpclient.Client, baseURL string, credentialsRequestBody CredentialsRequestBody) utils.Credentials {
+func POST_Catbox_Credentials(httpClient *httpclient.Client, baseURL string, credentialsRequestBody CredentialsRequestBody) utils.Credentials {
 
 	url := fmt.Sprintf("%s/catbox/credentials", baseURL)
 	h := make(map[string][]string)
@@ -476,7 +465,7 @@ func POST_Catbox_Credentials(client *httpclient.Client, baseURL string, credenti
 		fmt.Printf("JSON Encode error: Obj=%v, err=%v\n", credentialsRequestBody, err)
 		os.Exit(1)
 	}
-	response_body := POST(client, url, bytes.NewReader(b), h)
+	response_body := POST(httpClient, url, bytes.NewReader(b), h)
 
 	var credentials utils.Credentials
 	dec := json.NewDecoder(bytes.NewReader(response_body))
@@ -489,22 +478,22 @@ func POST_Catbox_Credentials(client *httpclient.Client, baseURL string, credenti
 	return credentials
 }
 
-func POST_Catbox_Deposit(client *httpclient.Client, baseURL string, body string) []byte {
+func POST_Catbox_Deposit(httpClient *httpclient.Client, baseURL string, body string) []byte {
 
 	url := fmt.Sprintf("%s/catbox/deposit", baseURL)
 	h := make(map[string][]string)
 	h["Content-Type"] = []string{"application/x-www-form-urlencoded"}
-	response_body := POST(client, url, strings.NewReader(body), h)
+	response_body := POST(httpClient, url, strings.NewReader(body), h)
 
 	return response_body
 }
 
 // Post to bookwerx and get a Last Insert ID back.
-func POST_BW_LID(client *httpclient.Client, url string, body string) uint32 {
+func POST_BW_LID(httpClient *httpclient.Client, url string, body string) uint32 {
 
 	h := make(map[string][]string)
 	h["Content-Type"] = []string{"application/x-www-form-urlencoded"}
-	response_body := POST(client, url, strings.NewReader(body), h)
+	response_body := POST(httpClient, url, strings.NewReader(body), h)
 
 	var lid LID
 	dec := json.NewDecoder(bytes.NewReader(response_body))
@@ -522,4 +511,24 @@ func POST_BW_LID(client *httpclient.Client, url string, body string) uint32 {
 type MaybeBalance struct {
 	Balance decimal.Decimal
 	Nil     bool // Is the balance really supposed to be nil?
+}
+
+func buildOKCatboxCredentials(httpClient *httpclient.Client, baseURL string, credentialsRequestBody CredentialsRequestBody, credentialsFileName string) utils.Credentials {
+	methodName := "oktest:main.go:buildOKCatboxCredentials"
+
+	cbc := POST_Catbox_Credentials(httpClient, baseURL, credentialsRequestBody)
+
+	// Marshal these credentials to JSON and write to a file.
+	out, err := json.Marshal(cbc)
+	if err != nil {
+		fmt.Printf("%s: JSON marshal error: Err=%v\nbody=%v\n", methodName, err, cbc)
+		os.Exit(1)
+	}
+	err = ioutil.WriteFile(credentialsFileName, out, 0600)
+	if err != nil {
+		fmt.Printf("%s: Error writing okcatbox credentials to %s: err=%v\n", methodName, credentialsFileName, err)
+		os.Exit(1)
+	}
+
+	return cbc
 }
