@@ -359,6 +359,14 @@ func main() {
 
 	//okconnect transfer -currency BTC -quan 1.25 -from 6 -to 1 -config okconnect.yaml
 
+	// 8. Finally, let's run some tests of okprobe
+	out1, err = exec.Command("okprobe", "accountCurrencies", "--baseURL", CatboxURL, "--credentialsFile", OKCATBOX_CREDENTIALS_FILE_READ, "--makeErrorsCredentials", "--makeErrorsParams").Output()
+	if err != nil {
+		fmt.Printf("okprobe error %v\n", err)
+	} else {
+		fmt.Printf("okprobe success %v\n", out1)
+	}
+
 }
 
 func POST(client *httpclient.Client, url string, body io.Reader, headers http.Header) []byte {
