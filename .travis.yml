@@ -8,4 +8,4 @@ script:
   - go get github.com/bostontrader/okconnect
   - go get github.com/bostontrader/okprobe
 
-  - go run main.go
+  - go run main.go okprobe.go
