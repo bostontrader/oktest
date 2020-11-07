@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	utils "github.com/bostontrader/okcommon"
+	"github.com/bostontrader/okconnect/compare"
 	"github.com/bostontrader/okconnect/config"
 	"github.com/gojektech/heimdall/httpclient"
 	"gopkg.in/yaml.v3"
@@ -309,83 +310,73 @@ func main() {
 	// 6.2 Let's use okconnect to compare the user's balances in Bookwerx with the corresponding balances in the OKCatbox.  We should detect a discrepancy because the OKCatbox has a deposit,  but we haven't yet made a matching transaction on the user's books.
 	out1, err := exec.Command("okconnect", "compare", "-config", "okconnect.yaml").Output()
 	if err != nil {
-		fmt.Printf("okconnect error 1: err=%v\n", err)
+		fmt.Printf("Cannot execute okconnect 6.2: err=%v\n", err)
 		os.Exit(1)
 	}
+
 	fmt.Printf("okconnect output 6.2=%s\n", out1)
-	//comparison := make([]compare.Comparison, 0)
-	//dec := json.NewDecoder(bytes.NewReader(out1))
-	//dec.DisallowUnknownFields()
-	//err = dec.Decode(&comparison)
-	//if err != nil {
-	//fmt.Printf("Comparison JSON decode error: %v\n", err)
-	//os.Exit(1)
-	//}
-	//fmt.Printf("Comparison struct =%#v\n", comparison)
-	//if [ $(jq -r .[0].Category okconnect.out) != "F" ]; then echo "okconnect error"; exit 1; fi
-	//if comparison[0].Category != "F" {
-	//fmt.Println("Okconnect error")
-	//os.Exit(1)
-	//}
+	comparison := make([]compare.Comparison, 0)
+	dec := json.NewDecoder(bytes.NewReader(out1))
+	dec.DisallowUnknownFields()
+	err = dec.Decode(&comparison)
+	if err != nil {
+		fmt.Printf("Cannot decode okconnect result 6.2: %v\n", err)
+		os.Exit(1)
+	}
 
-	//if [ $(jq -r .[0].OKExBalance.Balance okconnect.out) != "1.5" ]; then echo "okconnect error"; exit 1; fi
-	//if comparison[0].Category != "F" {
-	//fmt.Println("Okconnect error")
-	//os.Exit(1)
-	//}
-
-	//if [ $(jq -r .[0].BookwerxBalance.Nil okconnect.out) != "true" ]; then echo "okconnect error"; exit 1; fi
+	if len(comparison) != 1 {
+		fmt.Printf("okconnect should see only 1 discrepency.  Instead it sees %d\n", len(comparison))
+	}
+	fmt.Printf("Section 6.2 success.\n")
 
 	// 6.3 Now create the bookwerx transaction on our user's books.
-	//TXID = PostBwLid(httpClient, fmt.Sprintf(
-	//"%s/transactions", BwServerUrl), fmt.Sprintf("apikey=%s&notes=Xfer BTC to OKEx&time=2020-05-01T12:34:55.000Z", TmuApiKey))
-	//_ = PostBwLid(httpClient, fmt.Sprintf(
-	//"%s/distributions", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&amount=15&amount_exp=-1&transaction_id=%d", TmuApiKey, AcctFundingBTC, TXID))
-	//_ = PostBwLid(httpClient, fmt.Sprintf(
-	//"%s/distributions", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&amount=-15&amount_exp=-1&transaction_id=%d", TmuApiKey, AcctLocalWalletBTC, TXID))
+	TXID = PostBwLid(httpClient, fmt.Sprintf(
+		"%s/transactions", BwServerUrl), fmt.Sprintf("apikey=%s&notes=Xfer BTC to OKEx&time=2020-05-01T12:34:55.000Z", TmuApiKey))
+	_ = PostBwLid(httpClient, fmt.Sprintf(
+		"%s/distributions", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&amount=15&amount_exp=-1&transaction_id=%d", TmuApiKey, AcctFundingBTC, TXID))
+	_ = PostBwLid(httpClient, fmt.Sprintf(
+		"%s/distributions", BwServerUrl), fmt.Sprintf("apikey=%s&account_id=%d&amount=-15&amount_exp=-1&transaction_id=%d", TmuApiKey, AcctLocalWalletBTC, TXID))
+	fmt.Printf("Section 6.3 success. I have created the bookwerx deposit tx on the TMU user's books\n")
 
 	// 6.4 Let's use okconnect again to compare the user's balances in Bookwerx with the corresponding balances in the OKCatbox. Now there should be zero discrepancies.
-	// ./okconnect compare -config okconnect.yaml
-	//out2, err := exec.Command("okconnect", "compare", "-config", "okconnect.yaml").Output()
-	//if err != nil {
-	//fmt.Printf("okconnect error 2: err=%v\n", err)
-	//os.Exit(1)
-	//}
-	//fmt.Printf("okconnect output 2=%s\n", out2)
+	out1, err = exec.Command("okconnect", "compare", "-config", "okconnect.yaml").Output()
+	if err != nil {
+		fmt.Printf("Cannot execute okconnect 6.3: err=%v\n", err)
+		os.Exit(1)
+	}
 
-	//comparison = make([]compare.Comparison, 0)
-	//dec = json.NewDecoder(bytes.NewReader(out2))
-	//dec.DisallowUnknownFields()
-	//err = dec.Decode(&comparison)
-	//if err != nil {
-	//fmt.Printf("Comparison JSON decode error: %v\n", err)
-	//os.Exit(1)
-	//}
-	//fmt.Printf("Comparison struct =%#v\n", comparison)
-	//if [ $(jq -r .[0].Category okconnect.out) != "F" ]; then echo "okconnect error"; exit 1; fi
-	//if len(comparison) != 0 {
-	//fmt.Println("Okconnect error 1")
-	//os.Exit(1)
-	//}
-	//if [ $(jq -r .[0] okconnect.out) != "null" ]; then echo "okconnect error"; exit 1; fi
+	fmt.Printf("okconnect output 6.3=%s\n", out1)
+	comparison = make([]compare.Comparison, 0)
+	dec = json.NewDecoder(bytes.NewReader(out1))
+	dec.DisallowUnknownFields()
+	err = dec.Decode(&comparison)
+	if err != nil {
+		fmt.Printf("Cannot decode okconnect result 6.3: %v\n", err)
+		os.Exit(1)
+	}
 
-	//fmt.Printf("Section 6 success.  I have transferred coin from the TMU's local wallet into a catbox funding account.\n\n")
+	if len(comparison) != 0 {
+		fmt.Printf("okconnect not see any discrepencies.  Instead it sees %d\n", len(comparison))
+	}
+	fmt.Printf("Section 6.4 success.\n")
+
+	fmt.Printf("Section 6. success. I have transferred coin from the TMU's local wallet into a catbox funding account.\n")
 
 	// 7. Things are going to start happening now!  The next step is to transfer some BTC from the funding account (6) into the spot market (1).  This is something that okconnect can easily do.
 
 	//okconnect transfer -currency BTC -quan 1.25 -from 6 -to 1 -config okconnect.yaml
 
 	// 8. Finally, let's run some tests of okprobe
-	//testOKProbe(CatboxURL, "accountCurrencies", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
-	//testOKProbe(CatboxURL, "accountDepositAddress", "?currency=BTC", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
+	testOKProbe(CatboxURL, "accountCurrencies", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
+	testOKProbe(CatboxURL, "accountDepositAddress", "?currency=BTC", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
 	//testOKProbe(CatboxURL, "accountDepositHistory", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
 	//testOKProbe(CatboxURL, "accountDepositHistoryByCur", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
 	//testOKProbe(CatboxURL, "accountLedger", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
 	//testOKProbe(CatboxURL, "accountTransfer", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
-	//testOKProbe(CatboxURL, "accountWallet", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
+	testOKProbe(CatboxURL, "accountWallet", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
 	//testOKProbe(CatboxURL, "accountWithdrawal", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
-	//testOKProbe(CatboxURL, "accountWithdrawalFee", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
-	//testOKProbe(CatboxURL, "spotAccounts", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
+	testOKProbe(CatboxURL, "accountWithdrawalFee", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
+	testOKProbe(CatboxURL, "spotAccounts", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
 }
 
 func POST(client *httpclient.Client, url string, body io.Reader, headers http.Header) []byte {
