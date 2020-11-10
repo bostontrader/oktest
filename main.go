@@ -370,7 +370,7 @@ func main() {
 	testOKProbe(CatboxURL, "accountCurrencies", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
 	testOKProbe(CatboxURL, "accountDepositAddress", "?currency=BTC", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
 	testOKProbe(CatboxURL, "accountDepositHistory", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
-	//testOKProbe(CatboxURL, "accountDepositHistoryByCur", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
+	testOKProbe(CatboxURL, "accountDepositHistoryByCur", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
 	//testOKProbe(CatboxURL, "accountLedger", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
 	//testOKProbe(CatboxURL, "accountTransfer", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
 	testOKProbe(CatboxURL, "accountWallet", "", OkCatboxCredentialsFileRead, OkCatboxCredentialsFileReadTrade, OkCatboxCredentialsFileReadWithdraw)
